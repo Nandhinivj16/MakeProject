@@ -15,10 +15,20 @@
 # Use: make [TARGET] [PLATFORM-OVERRIDES]
 #
 # Build Targets:
-#      <Put a description of the supported targets here>
+#      Example commands:
+#      make main.i PLATFORM=HOST
+#      make main.asm PLATFORM=HOST
+#      make main.o PLATFORM=HOST
+#      make build PLATFORM=HOST
+#      make clean PLATFORM=HOST
+#      make main.i PLATFORM=MSP432
+#      make main.asm PLATFORM=MSP432
+#      make main.o PLATFORM=MSP432
+#      make build PLATFORM=MSP432
+#      make clean PLATFORM=MSP432
 #
 # Platform Overrides:
-#      <Put a description of the supported Overrides here
+#      PLATFORM can be 'MSP432' or 'HOST'
 #
 #------------------------------------------------------------------------------
 include sources.mk
