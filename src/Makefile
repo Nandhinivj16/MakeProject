@@ -24,18 +24,62 @@
 include sources.mk
 
 # Platform Overrides
-PLATFORM = 
+PLATFORM = $(PLATFORM)
 
 # Architectures Specific Flags
-LINKER_FILE = 
-CPU = 
-ARCH = 
-SPECS = 
+ifeq ($(PLATFORM),MSP432)
+LINKER_FILE = ../msp432p401r.lds
+CPU = cortex-m4
+ARCH = thumb
+SPECS = nosys.specs
+endif
+
+TARGET = c1m2
+CPPFLAGS =  $(INCLUDES)
+CFLAGS = -Wall -Werror -g -O0 -std=c99 -D$(PLATFORM)
+CC = gcc
+SIZE = size
 
 # Compiler Flags and Defines
-CC = 
-LD = 
-LDFLAGS = 
-CFLAGS = 
-CPPFLAGs = 
+ifeq ($(PLATFORM),MSP432)
+CC = arm-none-eabi-gcc 
+LD = arm-none-eabi-ld
+SIZE = arm-none-eabi-size
+LDFLAGS = -Wl,-Map=$(TARGET).map -T $(LINKER_FILE)
+CFLAGS += -mcpu=$(CPU) -m$(ARCH) -march=armv7e-m -mfpu=fpv4-sp-d16  -mfloat-abi=hard --specs=$(SPECS)
+endif
 
+
+
+OBJS = $(SOURCES:.c=.o)
+
+%.i : %.c
+	$(CC) -c $< $(CFLAGS) $(CPPFLAGS) -E -o $@
+
+%.asm : %.c
+	$(CC) -c $< $(CFLAGS) $(CPPFLAGS) -S -o $@
+
+%.o : %.c
+	$(CC) -c $< $(CFLAGS) $(CPPFLAGS) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
+.PHONY: build
+build: all size
+
+.PHONY: all 
+all: $(TARGET).out
+
+.PHONY: compile-all 
+compile-all: $(OBJS)
+
+size: $(TARGET).out
+	@$(SIZE) $(TARGET).out
+
+$(TARGET).out: $(OBJS)
+	$(CC) $(CPPFLAGS) $(OBJS) $(CFLAGS) $(LDFLAGS) -o $@
+
+.PHONY: clean
+clean:
+	rm -f $(OBJS) $(TARGET).out $(TARGET).map
